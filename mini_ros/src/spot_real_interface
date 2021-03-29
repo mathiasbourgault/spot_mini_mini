@@ -6,6 +6,7 @@ SUBSCRIBERS:
 """
 
 from __future__ import division
+from std_msgs.msg import Float64MultiArray
 import rospy
 import numpy as np
 from mini_ros.msg import MiniCmd, JoyButtons, IMUdata, ContactData, AgentData, JointAngles
@@ -131,6 +132,7 @@ class SpotCommander():
                                         queue_size=1)
         self.ag_pub = rospy.Publisher('spot/agent', AgentData, queue_size=1)
         self.ja_pub = rospy.Publisher('spot/joints', JointAngles, queue_size=1)
+        self.angles_pub = rospy.Publisher('joint_angles', Float64MultiArray, queue_size=10)
         print("READY TO GO!")
 
     def load_spot(self, contacts, state_dim=12, action_dim=14, agent_num=0):
@@ -368,6 +370,12 @@ class SpotCommander():
         ja_msg.step_or_view = step_or_view
 
         self.ja_pub.publish(ja_msg)
+
+        publish_data = Float64MultiArray()
+        for i in range(4):
+        	for j in range(3):
+        		publish_data.data.append(joint_angles[i][j])
+        self.angles_pub.publish(publish_data)
 
 
 def main():
